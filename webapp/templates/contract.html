@@ -8,7 +8,7 @@
         <h3>{{ contract.sector or "" }}</h3>
         <p>{{ contract.listingExchange }}</p>    
 
-        <img src="https://charts2-node.finviz.com/chart.ashx?cs=l&t={{ contract.ticker }}&tf=d&s=linear&ct=candle_stick&tm=d&o[0][ot]=sma&o[0][op]=50&o[0][oc]=FF8F33C6&o[1][ot]=sma&o[1][op]=200&o[1][oc]=DCB3326D&o[2][ot]=sma&o[2][op]=20&o[2][oc]=DC32B363&o[3][ot]=patterns&o[3][op]=&o[3][oc]=000" />
+        <img style="width: 100%" src="https://charts2-node.finviz.com/chart.ashx?cs=l&t={{ contract.ticker }}&tf=d&s=linear&ct=candle_stick&tm=d&o[0][ot]=sma&o[0][op]=50&o[0][oc]=FF8F33C6&o[1][ot]=sma&o[1][op]=200&o[1][oc]=DCB3326D&o[2][ot]=sma&o[2][op]=20&o[2][oc]=DC32B363&o[3][ot]=patterns&o[3][op]=&o[3][oc]=000" />
     </div>
 
 
@@ -33,6 +33,16 @@
 <h2>Price History</h2>
 
 <table class="table table-striped">
+    <thead>
+        <tr>
+            <td>Date</td>
+            <td>Open</td>
+            <td>High</td>
+            <td>Low</td>
+            <td>Close</td>
+            <td>Volume</td>
+        </tr>
+    </thead>
     {% for item in price_history['data']|reverse %}
     <tr>
         <td>{{ item['t']|ctime }}</td>

@@ -1,4 +1,4 @@
-import requests, time, os
+import requests, time, os, random
 from flask import Flask, render_template, request, redirect
 
 # disable warnings until you install a certificate
@@ -68,7 +68,6 @@ def contract(contract_id, period='5d', bar='1d'):
 @app.route("/orders")
 def orders():
     r = requests.get(f"{BASE_API_URL}/iserver/account/orders", verify=False)
-    print(r.content)
     orders = r.json()["orders"]
     
     # place order code
@@ -77,6 +76,8 @@ def orders():
 
 @app.route("/order", methods=['POST'])
 def place_order():
+    print("== placing order ==")
+
     data = {
         "orders": [
             {
@@ -105,11 +106,65 @@ def cancel_order(order_id):
 @app.route("/portfolio")
 def portfolio():
     r = requests.get(f"{BASE_API_URL}/portfolio/{ACCOUNT_ID}/positions/0", verify=False)
-    positions = r.json()
+
+    if r.content:
+        positions = r.json()
+    else:
+        positions = []
 
     # return my positions, how much cash i have in this account
     return render_template("portfolio.html", positions=positions)
 
+@app.route("/watchlists")
+def watchlists():
+    r = requests.get(f"{BASE_API_URL}/iserver/watchlists", verify=False)
+
+    watchlist_data = r.json()["data"]
+    watchlists = []
+    if "user_lists" in watchlist_data:
+        watchlists = watchlist_data["user_lists"]
+        
+    return render_template("watchlists.html", watchlists=watchlists)
+
+
+@app.route("/watchlists/<int:id>")
+def watchlist_detail(id):
+    r = requests.get(f"{BASE_API_URL}/iserver/watchlist?id={id}", verify=False)
+
+    watchlist = r.json()
+
+    return render_template("watchlist.html", watchlist=watchlist)
+
+
+@app.route("/watchlists/<int:id>/delete")
+def watchlist_delete(id):
+    r = requests.delete(f"{BASE_API_URL}/iserver/watchlist?id={id}", verify=False)
+
+    return redirect("/watchlists")
+
+@app.route("/watchlists/create", methods=['POST'])
+def create_watchlist():
+    data = request.get_json()
+    name = data['name']
+
+    rows = []
+    symbols = data['symbols'].split(",")
+    for symbol in symbols:
+        symbol = symbol.strip()
+        if symbol:
+            r = requests.get(f"{BASE_API_URL}/iserver/secdef/search?symbol={symbol}&name=true&secType=STK", verify=False)
+            contract_id = r.json()[0]['conid']
+            rows.append({"C": contract_id})
+
+    data = {
+        "id": int(time.time()),
+        "name": name,
+        "rows": rows
+    }
+
+    r = requests.post(f"{BASE_API_URL}/iserver/watchlist", json=data, verify=False)
+    
+    return redirect("/watchlists")
 
 @app.route("/scanner")
 def scanner():
@@ -153,7 +208,6 @@ def scanner():
     filter_value = request.args.get("filter_value", "")
 
     if submitted:
-        print("submitting")
         data = {
             "instrument": selected_instrument,
             "location": location,

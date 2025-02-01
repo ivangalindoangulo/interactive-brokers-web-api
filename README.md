@@ -1,5 +1,9 @@
 # Interactive Brokers Web API
 
+## Video Walkthrough
+
+https://www.youtube.com/watch?v=CRsH9TKveLo
+
 ## Requirements
 
 * Docker Desktop - https://www.docker.com/products/docker-desktop/

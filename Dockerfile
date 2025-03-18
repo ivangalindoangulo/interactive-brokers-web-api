@@ -35,5 +35,4 @@ ADD scripts scripts
 EXPOSE 5055 5056
 
 # Run the gateway
-ENV FLASK_APP=app.py
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5055"]
+CMD sh ./start.sh
